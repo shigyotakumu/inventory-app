@@ -18,6 +18,47 @@ app.get("/products", async (req, res) => {
 });
 
 
+app.post("/products", async (req, res) => {
+  const { name, price, category, stock_quantity } = req.body;
+
+  const result = await pool.query(
+    `
+    INSERT INTO products
+    (name, price, category, stock_quantity)
+    VALUES ($1, $2, $3, $4)
+    RETURNING *
+    `,
+    [name, price, category, stock_quantity]
+  );
+
+  res.status(201).json(result.rows[0]);
+});
+
+
+
+app.patch("/products/:id", async (req, res) => {
+  const id = req.params.id;
+  const { name, price, category } = req.body;
+
+  const result = await pool.query(
+    `
+    UPDATE products
+    SET
+      name = $1,
+      price = $2,
+      category = $3,
+      updated_at = NOW()
+    WHERE id = $4
+    RETURNING *
+    `,
+    [name, price, category, id]
+  );
+
+  res.json(result.rows[0]);
+});
+
+
+
 app.patch("/products/:id/stock/in", async (req, res) => {
   const id = req.params.id;
   const { quantity, memo } = req.body;
@@ -99,6 +140,25 @@ app.patch("/products/:id/stock/out", async (req, res) => {
   res.json(result.rows[0]);
 });
 
+
+
+app.get("/stock-logs", async (req, res) => {
+  const result = await pool.query(`
+    SELECT
+      stock_logs.id,
+      products.name AS product_name,
+      stock_logs.type,
+      stock_logs.quantity,
+      stock_logs.memo,
+      stock_logs.created_at
+    FROM stock_logs
+    JOIN products
+    ON stock_logs.product_id = products.id
+    ORDER BY stock_logs.created_at DESC
+  `);
+
+  res.json(result.rows);
+});
 
 
 
