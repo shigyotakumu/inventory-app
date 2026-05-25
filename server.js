@@ -12,8 +12,31 @@ const pool = new Pool({
   port: 5432,
 });
 
+
+
+
 app.get("/products", async (req, res) => {
-  const result = await pool.query("SELECT * FROM products");
+  const { search, category } = req.query;
+
+  let query = "SELECT * FROM products WHERE 1=1";
+  const values = [];
+
+  // 商品名検索
+  if (search) {
+    values.push(`%${search}%`);
+    query += ` AND name ILIKE $${values.length}`;
+  }
+
+  // カテゴリ絞り込み
+  if (category) {
+    values.push(category);
+    query += ` AND category = $${values.length}`;
+  }
+
+  query += " ORDER BY id ASC";
+
+  const result = await pool.query(query, values);
+
   res.json(result.rows);
 });
 
@@ -58,10 +81,43 @@ app.patch("/products/:id", async (req, res) => {
 });
 
 
+app.delete("/products/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const result = await pool.query(
+    `
+    DELETE FROM products
+    WHERE id = $1
+    RETURNING *
+    `,
+    [id]
+  );
+
+  // 商品が存在しない
+  if (result.rows.length === 0) {
+    return res.status(404).json({
+      error: "商品が見つかりません",
+    });
+  }
+
+  res.json({
+    message: "商品を削除しました",
+    product: result.rows[0],
+  });
+});
+
+
+
 
 app.patch("/products/:id/stock/in", async (req, res) => {
   const id = req.params.id;
   const { quantity, memo } = req.body;
+
+  if (!quantity || quantity <= 0) {
+  return res.status(400).json({
+    error: "数量は1以上を入力してください",
+  });
+}
 
   // 在庫更新
   const result = await pool.query(
@@ -93,6 +149,12 @@ app.patch("/products/:id/stock/in", async (req, res) => {
 app.patch("/products/:id/stock/out", async (req, res) => {
   const id = req.params.id;
   const { quantity, memo } = req.body;
+
+  if (!quantity || quantity <= 0) {
+  return res.status(400).json({
+    error: "数量は1以上を入力してください",
+  });
+}
 
   // 商品取得
   const productResult = await pool.query(
