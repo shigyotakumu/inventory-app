@@ -4,6 +4,8 @@ const { Pool } = require("pg");
 const app = express();
 app.use(express.json());
 
+app.use(express.static("public"));
+
 const pool = new Pool({
   user: "postgres",
   host: "localhost",
@@ -76,6 +78,12 @@ app.patch("/products/:id", async (req, res) => {
     `,
     [name, price, category, id]
   );
+
+  if (result.rows.length === 0) {
+  return res.status(404).json({
+    error: "商品が見つかりません",
+  });
+}
 
   res.json(result.rows[0]);
 });
