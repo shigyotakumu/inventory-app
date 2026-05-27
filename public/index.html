@@ -10,6 +10,40 @@
 
   <h1>在庫管理システム</h1>
 
+  <form id="product-form">
+  <input
+    type="text"
+    id="name"
+    placeholder="商品名"
+    required
+  >
+
+  <input
+    type="number"
+    id="price"
+    placeholder="価格"
+    required
+  >
+
+  <input
+    type="text"
+    id="category"
+    placeholder="カテゴリ"
+    required
+  >
+
+  <input
+    type="number"
+    id="stock_quantity"
+    placeholder="在庫数"
+    required
+  >
+
+  <button type="submit">
+    商品追加
+  </button>
+</form>
+
   <div id="product-list"></div>
 
   <script src="script.js"></script>
