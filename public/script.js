@@ -14,6 +14,7 @@ async function fetchProducts() {
           <th>価格</th>
           <th>カテゴリ</th>
           <th>在庫</th>
+          <th>捜査</th>
         </tr>
       </thead>
       <tbody id="table-body"></tbody>
@@ -24,18 +25,28 @@ async function fetchProducts() {
     document.getElementById("table-body");
 
   products.forEach(product => {
-    tableBody.innerHTML += `
-      <tr>
-        <td>${product.id}</td>
-        <td>${product.name}</td>
-        <td>${product.price ?? 0}円</td>
-        <td>${product.category ?? "-"}</td>
-        <td>${product.stock_quantity}</td>
-      </tr>
-    `;
-  });
-}
-
+  tableBody.innerHTML += `
+    <tr>
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.price ?? 0}円</td>
+      <td>${product.category ?? "-"}</td>
+      <td>${product.stock_quantity}</td>
+      <td>
+         <button onclick="stockIn(${product.id})">
+          入庫
+        </button> 
+        <button onclick="editProduct(${product.id})">
+          編集
+        </button>      
+        <button onclick="deleteProduct(${product.id})">
+          削除
+        </button>
+      </td>
+    </tr>
+  `;
+});
+};
 fetchProducts();
 
 const productForm =
@@ -80,3 +91,58 @@ productForm.addEventListener(
     fetchProducts();
   }
 );
+
+async function deleteProduct(id) {
+  await fetch(`/products/${id}`, {
+    method: "DELETE",
+  });
+
+  fetchProducts();
+};
+
+async function editProduct(id) {
+  const name =
+    prompt("商品名を入力");
+
+  const price =
+    prompt("価格を入力");
+
+  const category =
+    prompt("カテゴリを入力");
+
+  await fetch(`/products/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type":
+        "application/json",
+    },
+    body: JSON.stringify({
+      name,
+      price,
+      category,
+    }),
+  });
+
+  fetchProducts();
+}
+
+async function stockIn(id) {
+  const quantity =
+    prompt("入庫数を入力");
+
+  const memo =
+    prompt("メモを入力");
+
+  await fetch(`/products/${id}/stock/in`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      quantity: Number(quantity),
+      memo,
+    }),
+  });
+
+  fetchProducts();
+}
