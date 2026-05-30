@@ -14,7 +14,7 @@ async function fetchProducts() {
           <th>価格</th>
           <th>カテゴリ</th>
           <th>在庫</th>
-          <th>捜査</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody id="table-body"></tbody>
