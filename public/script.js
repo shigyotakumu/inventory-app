@@ -36,6 +36,9 @@ async function fetchProducts() {
          <button onclick="stockIn(${product.id})">
           入庫
         </button> 
+        <button onclick="stockOut(${product.id})">
+          出庫
+        </button> 
         <button onclick="editProduct(${product.id})">
           編集
         </button>      
@@ -145,4 +148,38 @@ async function stockIn(id) {
   });
 
   fetchProducts();
-}
+};
+
+
+async function stockOut(id) {
+  const quantity =
+    prompt("出庫数を入力");
+
+  const memo =
+    prompt("メモを入力");
+
+  const response = await fetch(
+    `/products/${id}/stock/out`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        quantity: Number(quantity),
+        memo,
+      }),
+    }
+  );
+
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+    alert(data.error);
+    return;
+  }
+
+  fetchProducts();
+};
