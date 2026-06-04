@@ -1,7 +1,14 @@
 async function fetchProducts() {
-  const response = await fetch("/products");
-  const products = await response.json();
+  const response =
+    await fetch("/products");
 
+  const products =
+    await response.json();
+
+  renderProducts(products);
+}
+
+function renderProducts(products) {
   const productList =
     document.getElementById("product-list");
 
@@ -25,31 +32,36 @@ async function fetchProducts() {
     document.getElementById("table-body");
 
   products.forEach(product => {
-  tableBody.innerHTML += `
-    <tr>
-      <td>${product.id}</td>
-      <td>${product.name}</td>
-      <td>${product.price ?? 0}円</td>
-      <td>${product.category ?? "-"}</td>
-      <td>${product.stock_quantity}</td>
-      <td>
-         <button onclick="stockIn(${product.id})">
-          入庫
-        </button> 
-        <button onclick="stockOut(${product.id})">
-          出庫
-        </button> 
-        <button onclick="editProduct(${product.id})">
-          編集
-        </button>      
-        <button onclick="deleteProduct(${product.id})">
-          削除
-        </button>
-      </td>
-    </tr>
-  `;
-});
-};
+    tableBody.innerHTML += `
+      <tr>
+        <td>${product.id}</td>
+        <td>${product.name}</td>
+        <td>${product.price ?? 0}円</td>
+        <td>${product.category ?? "-"}</td>
+        <td>${product.stock_quantity}</td>
+        <td>
+          <button onclick="stockIn(${product.id})">
+            入庫
+          </button>
+
+          <button onclick="stockOut(${product.id})">
+            出庫
+          </button>
+
+          <button onclick="editProduct(${product.id})">
+            編集
+          </button>
+
+          <button onclick="deleteProduct(${product.id})">
+            削除
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
 fetchProducts();
 
 const productForm =
@@ -183,3 +195,29 @@ async function stockOut(id) {
 
   fetchProducts();
 };
+
+async function searchProducts() {
+  const search =
+    document.getElementById("search").value;
+
+  const category =
+    document.getElementById("search-category").value;
+
+  const params = new URLSearchParams();
+
+  if (search) {
+    params.append("search", search);
+  }
+
+  if (category) {
+    params.append("category", category);
+  }
+
+  const response =
+    await fetch(`/products?${params.toString()}`);
+
+  const products =
+    await response.json();
+
+  renderProducts(products);
+}

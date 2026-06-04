@@ -44,6 +44,28 @@
   </button>
 </form>
 
+<div>
+  <input
+    type="text"
+    id="search"
+    placeholder="商品名で検索"
+  >
+
+  <input
+    type="text"
+    id="search-category"
+    placeholder="カテゴリで絞り込み"
+  >
+
+  <button onclick="searchProducts()">
+    検索
+  </button>
+
+  <button onclick="fetchProducts()">
+    全件表示
+  </button>
+</div>
+
   <div id="product-list"></div>
 
   <script src="script.js"></script>
