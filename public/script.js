@@ -160,6 +160,8 @@ async function stockIn(id) {
   });
 
   fetchProducts();
+
+  fetchStockLogs();
 };
 
 
@@ -194,6 +196,8 @@ async function stockOut(id) {
   }
 
   fetchProducts();
+  fetchStockLogs();
+
 };
 
 async function searchProducts() {
@@ -221,3 +225,49 @@ async function searchProducts() {
 
   renderProducts(products);
 }
+
+
+async function fetchStockLogs() {
+  const response =
+    await fetch("/stock-logs");
+
+  const logs =
+    await response.json();
+
+  const stockLogList =
+    document.getElementById("stock-log-list");
+
+  stockLogList.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>商品名</th>
+          <th>種類</th>
+          <th>数量</th>
+          <th>メモ</th>
+          <th>日時</th>
+        </tr>
+      </thead>
+      <tbody id="stock-log-body"></tbody>
+    </table>
+  `;
+
+  const stockLogBody =
+    document.getElementById("stock-log-body");
+
+  logs.forEach(log => {
+    stockLogBody.innerHTML += `
+      <tr>
+        <td>${log.id}</td>
+        <td>${log.product_name}</td>
+        <td>${log.type}</td>
+        <td>${log.quantity}</td>
+        <td>${log.memo ?? "-"}</td>
+        <td>${new Date(log.created_at).toLocaleString()}</td>
+      </tr>
+    `;
+  });
+}
+
+fetchStockLogs();
