@@ -48,10 +48,14 @@ function renderProducts(products) {
             出庫
           </button>
 
-          <button onclick="editProduct(${product.id})">
-            編集
-          </button>
-
+          <button onclick="editProduct(
+  ${product.id},
+  &quot;${product.name}&quot;,
+  ${product.price ?? 0},
+  &quot;${product.category ?? ""}&quot;
+)">
+  編集
+</button>
           <button onclick="deleteProduct(${product.id})">
             削除
           </button>
@@ -107,38 +111,66 @@ productForm.addEventListener(
   }
 );
 
+const editForm =
+  document.getElementById("edit-form");
+
+editForm.addEventListener(
+  "submit",
+  async (event) => {
+    event.preventDefault();
+
+    const id =
+      document.getElementById("edit-id").value;
+
+    const name =
+      document.getElementById("edit-name").value;
+
+    const price =
+      document.getElementById("edit-price").value;
+
+    const category =
+      document.getElementById("edit-category").value;
+
+    await fetch(`/products/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        price,
+        category,
+      }),
+    });
+
+    editForm.reset();
+
+    fetchProducts();
+  }
+);
+
 async function deleteProduct(id) {
+  const confirmed =
+    confirm("本当に削除しますか？");
+
+  if (!confirmed) {
+    return;
+  }
+
   await fetch(`/products/${id}`, {
     method: "DELETE",
   });
 
   fetchProducts();
-};
+  fetchStockLogs();
+}
 
-async function editProduct(id) {
-  const name =
-    prompt("商品名を入力");
-
-  const price =
-    prompt("価格を入力");
-
-  const category =
-    prompt("カテゴリを入力");
-
-  await fetch(`/products/${id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type":
-        "application/json",
-    },
-    body: JSON.stringify({
-      name,
-      price,
-      category,
-    }),
-  });
-
-  fetchProducts();
+function editProduct(id, name, price, category) {
+  document.getElementById("edit-id").value = id;
+  document.getElementById("edit-name").value = name;
+  document.getElementById("edit-price").value = price;
+  document.getElementById("edit-category").value = category;
 }
 
 async function stockIn(id) {
@@ -271,3 +303,79 @@ async function fetchStockLogs() {
 }
 
 fetchStockLogs();
+
+async function stockInForm() {
+  const id =
+    document.getElementById(
+      "stock-product-id"
+    ).value;
+
+  const quantity =
+    document.getElementById(
+      "stock-quantity"
+    ).value;
+
+  const memo =
+    document.getElementById(
+      "stock-memo"
+    ).value;
+
+  await fetch(`/products/${id}/stock/in`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type":
+        "application/json",
+    },
+    body: JSON.stringify({
+      quantity: Number(quantity),
+      memo,
+    }),
+  });
+
+  fetchProducts();
+  fetchStockLogs();
+}
+
+async function stockOutForm() {
+  const id =
+    document.getElementById(
+      "stock-product-id"
+    ).value;
+
+  const quantity =
+    document.getElementById(
+      "stock-quantity"
+    ).value;
+
+  const memo =
+    document.getElementById(
+      "stock-memo"
+    ).value;
+
+  const response =
+    await fetch(
+      `/products/${id}/stock/out`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          quantity: Number(quantity),
+          memo,
+        }),
+      }
+    );
+
+  const data =
+    await response.json();
+
+  if (!response.ok) {
+    alert(data.error);
+    return;
+  }
+
+  fetchProducts();
+  fetchStockLogs();
+}

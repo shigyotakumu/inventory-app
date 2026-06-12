@@ -44,6 +44,75 @@
   </button>
 </form>
 
+<h2>商品編集</h2>
+
+<form id="edit-form">
+  <input type="hidden" id="edit-id">
+
+  <input
+    type="text"
+    id="edit-name"
+    placeholder="商品名"
+    required
+  >
+
+  <input
+    type="number"
+    id="edit-price"
+    placeholder="価格"
+    required
+  >
+
+  <input
+    type="text"
+    id="edit-category"
+    placeholder="カテゴリ"
+    required
+  >
+
+  <button type="submit">
+    更新
+  </button>
+</form>
+
+<h2>在庫操作</h2>
+
+<form id="stock-form">
+  <input
+    type="number"
+    id="stock-product-id"
+    placeholder="商品ID"
+    required
+  >
+
+  <input
+    type="number"
+    id="stock-quantity"
+    placeholder="数量"
+    required
+  >
+
+  <input
+    type="text"
+    id="stock-memo"
+    placeholder="メモ"
+  >
+
+  <button
+    type="button"
+    onclick="stockInForm()"
+  >
+    入庫
+  </button>
+
+  <button
+    type="button"
+    onclick="stockOutForm()"
+  >
+    出庫
+  </button>
+</form>
+
 <div>
   <input
     type="text"
